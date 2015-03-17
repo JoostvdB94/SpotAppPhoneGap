@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2014 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <!-- Include meta tag to ensure proper rendering and touch zooming -->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+
+    <!-- Include jQuery Mobile stylesheets -->
+    <link rel="stylesheet" href="css/font-awesome.css" >
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="css/jquery.mobile.icons.min.css" >
+    <link rel="stylesheet" href="css/SpotApp.css" >
+
+
+    <!-- Include the jQuery library -->
+    <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script src="js/distanceCalculator.js"></script>
+    <script src="js/station.js"></script>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+    <title>Treinspot</title>
+    <style>
+        div[data-role="header"]{
+            position:static;
+        }
+    </style>
+</head>
+<body>
+<div data-role="page" id="mainpage">
+
+    <div data-role="header">
+        <h1>Treinspot App</h1>
+    </div>
+
+    <div data-role="main" class="ui-content">
+        <ul data-role="listview">
+            <li><a href="#spot">Spotten</a></li>
+            <li><a href="#trainstations">Treinstations</a></li>
+        </ul>
+    </div>
+
+    <div data-role="footer">
+
+    </div>
+
+</div>
+<div data-role="page" id="trainstations">
+
+    <div data-role="header">
+        <a href="#" data-role="button" class="ui-btn-icon-left backButton"><span class="fa fa-caret-left"></span> </a>
+        <h1>Treinstations in de buurt</h1>
+    </div>
+
+    <div data-role="main" class="ui-content">
+        <ul data-role="listview" id="stationList">
+            <li>Laden..</li>
+        </ul>
+    </div>
+
+    <div data-role="footer">
+
+    </div>
+
+</div>
+
+<div data-role="page" id="spot">
+
+    <div data-role="header">
+        <a href="#" data-role="button" class="ui-btn-icon-left backButton"><span class="fa fa-caret-left"></span> </a>
+        <h1>Spot een trein</h1>
+    </div>
+
+    <div data-role="main" class="ui-content">
+        <button class="ui-btn" id="takePicture"><span class="fa fa-camera"></span> Foto maken</button>
+    </div>
+
+    <div data-role="footer">
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+            var now = new Date();
+            var weekAgo = now.setDate(now.getDate() - 7);
+            if(!window.localStorage.getItem("stationListDate") || new Date(JSON.parse(window.localStorage.getItem("stationListDate"))) < weekAgo) {
+                $.ajax({
+                    type: "get",
+                    url: "http://webservices.ns.nl/ns-api-stations-v2",
+                    dataType: "xml",
+                    async: "true",
+                    complete: function (data) {
+                        storeXMLAsCache(data.responseXML);
+                    },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Basic " + btoa("dannyvdbiezen@outlook.com:XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g"));
+                    },
+                    error: function (xhr, status) {
+
+                        console.log(status);
+                        $("#info").html(status + "fout");
+                    }
+                });
+            }
+            calculateStations();
+
+            $(document).on("mobileinit", function () {
+                alert("mobileinit");
+                $('.backButton').on('tap', function () {
+                    history.go(-1);
+                });
+
+                $('#takePicture').on('tap', function () {
+                    navigator.camera.getPicture(cameraSuccess, cameraFailed, {quality: 50})
+                });
+
+            });
+
+    });
+    //            function onLoad() {
+    //                app.initialize();
+    //                document.addEventListener("deviceready", function () {
+    //                    alert("Device ready");
+    //                }, false);
+    //
+    //
+    //            }
+    function cameraSuccess(base64){
+        $('#spot').children('.ui-content').append(navigator.camera.sourceType);
+    }
+
+    function cameraFailed(error){
+        alert("Could not open camera "+error.toString());
+    }
+
+    function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+        var R = 6371; // Radius of the earth in km
+        var dLat = deg2rad(lat2-lat1);  // deg2rad below
+        var dLon = deg2rad(lon2-lon1);
+        var a =
+                        Math.sin(dLat/2) * Math.sin(dLat/2) +
+                        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                        Math.sin(dLon/2) * Math.sin(dLon/2)
+                ;
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        var d = R * c; // Distance in km
+        return d;
+    }
+
+    function deg2rad(deg) {
+        return deg * (Math.PI/180)
+    }
+
+    var options = function (){
+
+    };
+
+
+
+    function calculateStations() {
+        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+
+    }
+
+    function onSuccess(position) {
+        showClosestTrainStations(position.coords.latitude, position.coords.longitude);
+    }
+
+    function onError(error) {
+        alert('Error obtaining location: error '    + error.code    + '\n' +
+        'message: ' + error.message + '\n');
+    }
+
+    function storeXMLAsCache(responseXML) {
+        var stations = [];
+        $(responseXML).find("Stations").each(function(){
+            $(this).find("Station").each(function(){
+
+                var station = new Station();
+                station.lat = $(this).find("Lat")[0].innerHTML;
+                station.lon = $(this).find("Lon")[0].innerHTML;
+                station.type = $(this).find("Type")[0].innerHTML;
+                $(this).find("Namen").each(function() {
+                    station.name = $(this).find("Lang")[0].innerHTML;
+                });
+                stations.push(station);
+            });
+        });
+        window.localStorage.setItem("stationList",JSON.stringify(stations));
+        window.localStorage.setItem("stationListDate",JSON.stringify(new Date()));
+    }
+
+    function showClosestTrainStations(lat, lon) {
+        var disCalc = new DistanceCalculator();
+        var stations = JSON.parse(window.localStorage.getItem("stationList"));
+        $.each(stations , function(index, val) {
+            stations[index].distance = disCalc.calculate(lat, lon, stations[index].lat, stations[index].lon);
+        });
+        stations.sort(function(a,b) { return parseFloat(a.distance) - parseFloat(b.distance) } );
+
+        $('#stationList').html('');
+        $.each(stations , function(index, val) {
+            $('#stationList').append('<li><a href="#trainstations">'+val.name+'</a></li>');
+        });
+        $('#stationList').listview('refresh');
+    }
+</script>
+
+<!-- Include the jQuery Mobile library -->
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</body>
+</html>
+   
