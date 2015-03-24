@@ -35,7 +35,9 @@
   <!--<gap:plugin name="org.apache.cordova.network-information"/>-->
   <gap:plugin name="org.apache.cordova.splashscreen"/>
   <!--<gap:plugin name="org.apache.cordova.vibration"/>-->
-  <icon src="icon.png"/>
+
+    <access origin="http://webservices.ns.nl/"/>
+    <icon src="icon.png"/>
   <icon src="www/res/icon/android/icon-36-ldpi.png" gap:platform="android" gap:qualifier="ldpi"/>
   <icon src="www/res/icon/android/icon-48-mdpi.png" gap:platform="android" gap:qualifier="mdpi"/>
   <icon src="www/res/icon/android/icon-72-hdpi.png" gap:platform="android" gap:qualifier="hdpi"/>
@@ -61,5 +63,6 @@
   <gap:splash src="www/res/screen/ios/screen-ipad-landscape.png" gap:platform="ios" width="1024" height="768"/>
   <gap:splash src="www/res/screen/windows-phone/screen-portrait.jpg" gap:platform="winphone"/>
   <access origin="*"/>
+    <access origin="geo:*" launch-external="yes" />
 
 </widget>

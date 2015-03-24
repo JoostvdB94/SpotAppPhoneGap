@@ -234,6 +234,21 @@ html body .ui-group-theme-a .ui-bar-inherit {
 	border-width: 1px;
 	border-style: solid;
 }
+
+.ui-bar{
+    position:static;
+}
+
+/*Browser video fix*/
+video{
+    position: relative;
+    float:left;
+}
+button{
+    float:right;
+    position: relative;
+}
+
 /* Page and overlay */
 .ui-overlay-a,
 .ui-page-theme-a,

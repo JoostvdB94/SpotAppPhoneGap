@@ -1,6 +1,4 @@
-/**
- * Created by Joost on 10-3-2015.
- */
+
 function DistanceCalculator() {
     this.calculate = function(lat1, lon1, lat2, lon2)
     {
