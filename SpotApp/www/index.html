@@ -108,7 +108,7 @@
     $(document).ready(function() {
             var now = new Date();
             var weekAgo = now.setDate(now.getDate() - 7);
-            if(!window.localStorage.getItem("stationListDate") || new Date(JSON.parse(window.localStorage.getItem("stationListDate"))) < weekAgo) {
+            if(window.localStorage.getItem("stationListDate") == null || new Date(JSON.parse(window.localStorage.getItem("stationListDate"))) < weekAgo) {
                 $.ajax({
                     type: "get",
                     url: "http://webservices.ns.nl/ns-api-stations-v2",
@@ -127,19 +127,20 @@
                     }
                 });
             }
-            calculateStations();
 
-            $(document).on("mobileinit", function () {
-                alert("mobileinit");
-                $('.backButton').on('tap', function () {
-                    history.go(-1);
-                });
+        calculateStations();
 
-                $('#takePicture').on('tap', function () {
-                    navigator.camera.getPicture(cameraSuccess, cameraFailed, {quality: 50})
-                });
-
+        $(document).on("mobileinit", function () {
+            alert("mobileinit");
+            $('.backButton').on('tap', function () {
+                history.go(-1);
             });
+
+            $('#takePicture').on('tap', function () {
+                navigator.camera.getPicture(cameraSuccess, cameraFailed, {quality: 50})
+            });
+
+        });
 
     });
     //            function onLoad() {
@@ -175,12 +176,6 @@
     function deg2rad(deg) {
         return deg * (Math.PI/180)
     }
-
-    var options = function (){
-
-    };
-
-
 
     function calculateStations() {
         navigator.geolocation.getCurrentPosition(onSuccess, onError);
@@ -225,7 +220,7 @@
 
         $('#stationList').html('');
         $.each(stations , function(index, val) {
-            $('#stationList').append('<li><a href="#trainstations">'+val.name+'</a></li>');
+            $('#stationList').append('<li><a href="#trainstations">'+val.name+'</a><span class="ui-li-count">'+val.distance.toFixed(2)+'&nbsp;KM</span></li>');
         });
         $('#stationList').listview('refresh');
     }

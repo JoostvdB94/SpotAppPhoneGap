@@ -5,3 +5,4 @@ function Station(name, lat, lon, distance, type){
     this.type = type;
     this.distance = distance;
 }
+
