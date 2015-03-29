@@ -25,10 +25,10 @@
     <preference name="android-installLocation" value="auto"/>
     <preference name="LoadingDialog" value="TrainSpot,Uw data wordt geladen..."/>
 
-    <gap:plugin name="Camera" value="org.apache.cordova.core.camera" />
-    <gap:plugin name="Geolocation" value="org.apache.cordova.core.geolocation" />
-    <gap:plugin name="Notification" value="org.apache.cordova.core.dialogs" />
-    <gap:plugin name="Vibration" value="org.apache.cordova.core.vibration" />
+    <gap:plugin name="org.apache.cordova.core.camera" />
+    <gap:plugin name="org.apache.cordova.core.geolocation" />
+    <gap:plugin name="org.apache.cordova.core.dialogs" />
+    <gap:plugin name="org.apache.cordova.core.vibration" />
 
     <access origin="http://webservices.ns.nl/"/>
     <icon src="icon.png"/>
