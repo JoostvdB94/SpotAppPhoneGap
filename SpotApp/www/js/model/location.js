@@ -1,5 +1,5 @@
-function Location(name, lat, lon, distance, type){
-	this.name = name;
+function Location(locationName, lat, lon, distance, type){
+	this.locationName = locationName;
     this.lat = lat;
     this.lon = lon;
     this.type = type;

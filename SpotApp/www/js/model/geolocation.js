@@ -10,16 +10,17 @@ function Geolocation(){
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
             succesCallback(position);
+            console.log(position);
         }, function(){
             alert("No Location found..");
         });
     };
 
     this.getLatitude = function(){
-        return (latitude)?latitude:58.2;
+        return latitude;
     };
 
     this.getLongitude = function(){
-        return (longitude)?longitude:42.3;
+        return longitude;
     }
 }
