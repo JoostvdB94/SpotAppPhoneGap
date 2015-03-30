@@ -170,7 +170,7 @@ function TrainController(){
             url: "http://compuplex.nl:10030/subscribe",
             dataType:'json',
             contentType: "application/json",
-            data: JSON.stringify({"user":window.localStorage.getItem("username"),"type":window.device.platform.toLowerCase(),"token":window.localStorage.getItem("regId")}),
+            data: JSON.stringify({"user":window.localStorage.getItem("username"),"type":window.device.platform,"token":window.localStorage.getItem("regId")}),
             success: function (data) {
                 alert("Succesvol geregistreerd op server.");
 
