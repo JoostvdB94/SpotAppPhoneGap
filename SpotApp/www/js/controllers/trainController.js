@@ -10,7 +10,6 @@ $(document).ready(function(){
 document.addEventListener('deviceready',function(){
     alert("deviceready");
     var device = window.device;
-    alert(device.platform);
     pushNotification = window.plugins.pushNotification;
     if ( device.platform == 'android' || device.platform == 'Android' || device.platform == "amazon-fireos" ){
         pushNotification.register(
@@ -140,7 +139,7 @@ function TrainController(){
     };
 
     this.registrationCompleted = function(result){
-        alert("registered!");
+        alert("Registered!"+ result);
     };
 
     this.registrationFailed = function(result){
