@@ -2,14 +2,61 @@
  * Created by Joost on 24-3-2015.
  */
 var trainController;
+var pushNotification;
 $(document).ready(function(){
     trainController = new TrainController();
 });
 
-$( document ).bind( "mobileinit", function() {
+document.addEventListener('deviceready',function(){
+    alert("deviceready");
+    var device = window.device;
+    alert(device.platform);
+    pushNotification = window.plugins.pushNotification;
+    if ( device.platform == 'android' || device.platform == 'Android' || device.platform == "amazon-fireos" ){
+        pushNotification.register(
+            trainController.registrationCompleted,
+            trainController.registrationFailed,
+            {
+                "senderID":"761052820982",
+                "ecb":"onNotification"
+            });
+    } else {
+        pushNotification.register(
+            trainController.registrationCompleted,
+            trainController.registrationFailed,
+            {
+                "badge":"true",
+                "sound":"true",
+                "alert":"true",
+                "ecb":"onNotificationAPN"
+            });
+    }
+});
+
+var onNotification = function(event){
+  alert("NOTIFICATION!");
+};
+var onNotificationAPN = function(event){
+  alert("NOTIFICATION!");
+};
+
+$( document ).on( "mobileinit", function() {
     // Make your jQuery Mobile framework configuration changes here!
     $.support.cors = true;
     $.mobile.allowCrossDomainPages = true;
+    alert("MobileInit");
+    $('#loginForm').on('submit',function(e){
+        e.preventDefault();
+        $.mobile.pageContainer.pagecontainer('change','#mainpage',
+            {
+                transition: 'flip',
+                changeHash: false,
+                reverse: true,
+                showLoadMsg: true
+            }
+        );
+    });
+    $.mobile.defaultPageTransition = "slide";
 });
 
 //Bindings
@@ -21,41 +68,50 @@ $(document).ready(function(){
         });
         return formData;
     };
-    //$('#trainstations').on('pageload',trainController.showClosestTrainStations());
+
+    $('#trainstations').on('beforepageload',trainController.showClosestTrainStations(false,function(){}));
     $('#photoPlaceholder').on('tap',function(){trainController.getCamera()});
-    $('#spots').on('pageload',trainController.showSpots());
+    $('#spots').on('pageload',trainController.showSpots(false, function(){}));
+    $('#refreshLocations').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showClosestTrainStations(true,function(){$(e.target).removeClass('fa-spin');});});
+    $('#refreshSpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(true,function(){$(e.target).removeClass('fa-spin');});});
     $('form[name=spotForm]').on('submit',function(e){e.preventDefault();trainController.sendSpot(e.target);$('#photoPlaceholder').find('img').remove();e.target.reset();})
 });
 function TrainController(){
     var self = this;
     var geoObj = new Geolocation();
-    geoObj.getLocation(function(geoLocation){self.showClosestTrainStations()});
 
-    this.showClosestTrainStations = function(){
-        console.log("Getting stations..");
-        var locationManager = new LocationManager();
-        locationManager.getAllLocations(function(stations){
-            //stations = [new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station"),new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station"),new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station"),new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station"),new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station"),new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station"),new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station"),new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station"),new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station"),new Location("Hallo",50.5,5.6,10,"Station"),new Location("Hallo1",50.5,5.6,28,"Station"),new Location("Hallo2",50.5,5.6,24,"Station"),new Location("Hallo3",50.5,5.6,20,"Station")];
-            console.log("Adding stations to list");
-            var stationListDOM = $('#stationList');
-            stationListDOM.html("");
-            $.each(stations , function(index, val) {
-                stationListDOM.append('<li><a href="#trainstations">'+val.locationName+'</a><span class="ui-li-count">'+val.distance.toFixed(2)+'&nbsp;KM</span></li>');
+    this.showClosestTrainStations = function(refreshCache, callback){
+        var loadLocations = function(geoLocation){
+            console.log("Getting stations..");
+            var locationManager = new LocationManager();
+            locationManager.getAllLocations(refreshCache,function (stations) {
+                console.log("Adding stations to list");
+                var stationListDOM = $('#stationList');
+                stationListDOM.html("");
+                $.each(stations, function (index, val) {
+                    stationListDOM.append('<li><a href="#trainstations">' + val.locationName + '</a><span class="ui-li-count">' + val.distance.toFixed(2) + '&nbsp;KM</span></li>');
+                });
+                $('#locationCacheDate').text(moment(locationManager.getLocationsCacheLastUpdated()).format('DD-MM-YY HH:mm'));
+                stationListDOM.listview().listview('refresh');
+                callback();
             });
-            stationListDOM.listview('refresh');
-        });
+        };
+        geoObj.getLocation(loadLocations,loadLocations);
     };
 
-    this.showSpots = function(){
+    this.showSpots = function(refreshCache, callback){
         console.log("Getting spots...");
-        var spotListDom = $('#spotsList');
         var spotManager = new SpotManager();
-        spotManager.getAllSpots(function(spots){
+        spotManager.getAllSpots(refreshCache,function(spots){
             console.log("Adding spots to spotlist");
+            var spotListDom = $('#spotsList');
             spotListDom.html("");
             $.each(spots , function(index, val) {
                 spotListDom.append('<li class="ui-li-has-thumb"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:'+val.image.extension+';base64,'+val.image.data+'" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">'+val.name+'</a></li>');
             });
+            $('#spotsCacheDate').text(moment(spotManager.getSpotsCacheLastUpdated()).format('DD-MM-YY HH:mm'));
+            spotListDom.listview().listview('refresh');
+            callback();
         });
     };
 
@@ -81,5 +137,13 @@ function TrainController(){
         jsonData.owner = "RandomID";
         var spotMan = new SpotManager();
         spotMan.saveSpot(jsonData);
-    }
+    };
+
+    this.registrationCompleted = function(result){
+        alert("registered!");
+    };
+
+    this.registrationFailed = function(result){
+        alert("Register failed");
+    };
 }

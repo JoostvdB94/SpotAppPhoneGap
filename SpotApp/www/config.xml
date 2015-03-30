@@ -26,9 +26,11 @@
     <preference name="LoadingDialog" value="TrainSpot,Uw data wordt geladen..."/>
 
     <gap:plugin name="org.apache.cordova.core.camera" />
+    <gap:plugin name="org.apache.cordova.core.device" />
     <gap:plugin name="org.apache.cordova.core.geolocation" />
     <gap:plugin name="org.apache.cordova.core.dialogs" />
     <gap:plugin name="org.apache.cordova.core.vibration" />
+    <gap:plugin name="com.phonegap.plugins.pushplugin" version="2.4.0" />
 
     <access origin="http://webservices.ns.nl/"/>
     <icon src="icon.png"/>
@@ -49,5 +51,10 @@
     <gap:splash src="www/res/screen/windows-phone/screen-portrait.jpg" gap:platform="winphone"/>
     <access origin="herokuapp.com" subdomains="true"/>
     <access origin="geo:*" launch-external="yes" />
+
+    <feature name="http://api.phonegap.com/1.0/camera"/>
+    <feature name="http://api.phonegap.com/1.0/network"/>
+    <feature name="http://api.phonegap.com/1.0/notification"/>
+    <feature name="http://api.phonegap.com/1.0/geolocation"/>
 
 </widget>

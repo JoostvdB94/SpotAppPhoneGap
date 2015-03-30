@@ -5,14 +5,15 @@ function Geolocation(){
     var latitude;
     var longitude;
 
-    this.getLocation =  function (succesCallback) {
+    this.getLocation =  function (succesCallback,failureCallback) {
         navigator.geolocation.getCurrentPosition(function(position){
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
             succesCallback(position);
             console.log(position);
-        }, function(){
-            alert("No Location found..");
+        }, function(message){
+            alert("No Location found.. "+message);
+            failureCallback(null);
         });
     };
 

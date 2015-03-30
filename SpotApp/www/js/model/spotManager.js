@@ -6,8 +6,8 @@ function SpotManager(){
     var baseApiURL = "http://trainspot.herokuapp.com/api/spots";
     //var authString = "Basic " + btoa("dannyvdbiezen@outlook.com:XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g");
     var yesterday = moment().subtract(1,'days');
-    this.getAllSpots = function(callback){
-        if(!self.getSpotsCacheLastUpdated() || moment(self.getSpotsCacheLastUpdated(),moment.ISO_8601).isBefore(yesterday)) {
+    this.getAllSpots = function(refresh,callback){
+        if(refresh || !self.getSpotsCacheLastUpdated() || moment(self.getSpotsCacheLastUpdated(),moment.ISO_8601).isBefore(yesterday)) {
             $.ajax({
                 type: "get",
                 url: baseApiURL,

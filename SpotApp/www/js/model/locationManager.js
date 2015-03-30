@@ -8,10 +8,10 @@ function LocationManager(){
     var disCalc = new DistanceCalculator();
     var geo = new Geolocation();
 
-    this.getAllLocations = function(callback){
+    this.getAllLocations = function(refreshCache,callback){
         $.ajax({
             type: "get",
-            url: baseApiURL + "/api/data",
+            url: baseApiURL + "/api/locations",
             dataType: "json",
             async: "true",
             success: function (data,textStatus,jqXhr) {
@@ -29,20 +29,30 @@ function LocationManager(){
         var locations = [];
         //var jsonArray = JSON.parse(json);
         geo.getLocation(function(geoLocation) {
+            parseData(geoLocation);
+        },function(message){
+            parseData(null);
+        });
+
+        var parseData = function(geoLocation){
             $.each(jsonArray, function (index, jsonItem) {
                 var location = new Location();
                 location.lat = jsonItem.latitude;
                 location.lon = jsonItem.longitude;
                 location.type = jsonItem.type;
                 location.locationName = jsonItem["name"];
-                location.distance = disCalc.calculate(location.lat, location.lon, geoLocation.coords.latitude, geoLocation.coords.longitude);
+                if(geoLocation) {
+                    location.distance = disCalc.calculate(location.lat, location.lon, geoLocation.coords.latitude, geoLocation.coords.longitude);
+                }else{
+                    location.distance = 0;
+                }
                 locations.push(location);
             });
             self.updateLocationCache(locations);
             self.sortLocations();
             console.log(locations);
             $(self).trigger("parsedJson");
-        });
+        }
     };
 
     this.updateLocationCache = function(stations){
