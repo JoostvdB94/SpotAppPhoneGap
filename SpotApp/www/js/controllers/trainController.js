@@ -37,6 +37,22 @@ var onNotification = function(event){
         case 'registered':
             if(event.regid.length > 0){
                 alert("Registered!" + event.regid);
+
+                $.ajax({
+                    type: "post",
+                    url: "http://compuplex.nl:10030/subscribe",
+                    dataType:'json',
+                    contentType: "application/json",
+                    data: JSON.stringify({"user":window.localStorage.getItem("username"),"type":String.toLowerCase(device.platform),"token":event.regid}),
+                    success: function (data) {
+                        alert("Succesvol geregistreerd op server.");
+                        //TODO Stuur pushnotificatie naar anderen met ID van spot data._id
+                    },
+                    error: function (xhr, status) {
+                        console.log(status+" Message: "+xhr.statusText);
+                    }
+                });
+
             }
             break;
         case 'message':
@@ -61,6 +77,7 @@ $( document ).on( "mobileinit", function() {
     $.mobile.allowCrossDomainPages = true;
     alert("MobileInit");
     $('#loginForm').on('submit',function(e){
+        window.localStorage.setItem("username", $(e.target).find('input[name=username]').first().val());
         e.preventDefault();
         $.mobile.pageContainer.pagecontainer('change','#mainpage',
             {
