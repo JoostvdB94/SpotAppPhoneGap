@@ -33,7 +33,23 @@ document.addEventListener('deviceready',function(){
 });
 
 var onNotification = function(event){
-  alert("NOTIFICATION!");
+    switch(event.event){
+        case 'registered':
+            if(event.regid.length > 0){
+                alert("Registered!" + event.regid);
+            }
+            break;
+        case 'message':
+            if(e.foreground){
+                alert("Alert in foreground");
+            }else{
+                alert("Alert was in Background");
+            }
+            break;
+        default:
+            break;
+    }
+
 };
 var onNotificationAPN = function(event){
   alert("NOTIFICATION!");
