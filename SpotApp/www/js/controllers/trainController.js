@@ -22,7 +22,7 @@ $( document ).on( "mobileinit", function() {
                 showLoadMsg: true
             }
         );
-        trainController.registerToBackend();
+        window.registration.registerToBackend();
     });
     $.mobile.defaultPageTransition = "slide";
 });

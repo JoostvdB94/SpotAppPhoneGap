@@ -35,6 +35,22 @@ function Registration(){
 
     };
 
+    this.registerToBackend = function(){
+        $.ajax({
+            type: "post",
+            url: "http://compuplex.nl:10030/subscribe",
+            dataType:'json',
+            contentType: "application/json",
+            data: JSON.stringify({"user":window.localStorage.getItem("username"),"type":window.device.platform,"token":window.localStorage.getItem("regId")}),
+            success: function (data) {
+                alert("Succesvol geregistreerd op server.");
+            },
+            error: function (xhr, status) {
+                console.log(status+" Message: "+xhr.statusText);
+            }
+        });
+    }
+
 }
 
 var onNotification = function(event){
