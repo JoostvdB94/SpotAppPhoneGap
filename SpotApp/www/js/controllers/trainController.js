@@ -11,13 +11,13 @@ document.addEventListener('deviceready',function(){
     var device = window.device;
     pushNotification = window.plugins.pushNotification;
     if ( device.platform == 'android' || device.platform == 'Android' || device.platform == "amazon-fireos" ){
-        //pushNotification.register(
-        //    trainController.registrationCompleted,
-        //    trainController.registrationFailed,
-        //    {
-        //        "senderID":"761052820982",
-        //        "ecb":"onNotification"
-        //    });
+        pushNotification.register(
+            trainController.registrationCompleted,
+            trainController.registrationFailed,
+            {
+                "senderID":"761052820982",
+                "ecb":"onNotification"
+            });
     } else {
         pushNotification.register(
             trainController.registrationCompleted,
@@ -87,7 +87,7 @@ $(document).ready(function(){
 
     $('#trainstations').on('beforepageload',trainController.showClosestTrainStations(false,function(){}));
     $('#photoPlaceholder').on('tap',function(){trainController.getCamera()});
-    $('#myspots').on('pageload',trainController.showSpots(false, function(){}));
+    $('#myspots').on('pageload',trainController.showSpots(function(){}));
     $('#refreshLocations').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showClosestTrainStations(true,function(){$(e.target).removeClass('fa-spin');});});
     $('#refreshMySpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(true,function(){$(e.target).removeClass('fa-spin');});});
     $('form[name=spotForm]').on('submit',function(e){e.preventDefault();trainController.sendSpot(e.target);$('#photoPlaceholder').find('img').remove();e.target.reset();})
@@ -115,10 +115,10 @@ function TrainController(){
         geoObj.getLocation(loadLocations,loadLocations);
     };
 
-    this.showSpots = function(refreshCache, callback){
+    this.showSpots = function(callback){
         console.log("Getting spots...");
         var spotManager = new SpotManager();
-        spotManager.getAllSpots(refreshCache,function(spots){
+        spotManager.getAllSpots(function(spots){
             console.log("Adding spots to spotlist");
             var spotListDom = $('#mySpotsList');
             spotListDom.html("");
