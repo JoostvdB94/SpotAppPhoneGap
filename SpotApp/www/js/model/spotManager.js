@@ -56,19 +56,6 @@ function SpotManager(){
         this.getAllSpots(function(spots){});
     };
 
-    this.updateSpotsCache = function(spots){
-        window.localStorage.setObject("spotsList",spots);
-        window.localStorage.setObject("spotsListDate",new Date());
-    };
-
-    this.getSpotsCache = function () {
-        return window.localStorage.getObject("spotsList");
-    };
-
-    this.getSpotsCacheLastUpdated = function () {
-        return window.localStorage.getObject("spotsListDate");
-    };
-
     this.sortSpots = function(disCalc,spots){
         if(spots){
             $.each(spots , function(index, val) {

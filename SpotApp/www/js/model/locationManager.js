@@ -9,7 +9,7 @@ function LocationManager(){
     var geo = new Geolocation();
     var yesterday = moment().subtract(1,'days');
     this.getAllLocations = function(refreshCache,callback){
-        if(refresh || !self.getLocationsCacheLastUpdated() || moment(self.getLocationsCacheLastUpdated(),moment.ISO_8601).isBefore(yesterday)) {
+        if(refreshCache || !self.getLocationsCacheLastUpdated() || moment(self.getLocationsCacheLastUpdated(),moment.ISO_8601).isBefore(yesterday)) {
             $.ajax({
                 type: "get",
                 url: baseApiURL + "/api/locations",
