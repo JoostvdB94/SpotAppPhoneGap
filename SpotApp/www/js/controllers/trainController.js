@@ -8,17 +8,16 @@ $(document).ready(function(){
 });
 
 document.addEventListener('deviceready',function(){
-    alert("deviceready");
     var device = window.device;
     pushNotification = window.plugins.pushNotification;
     if ( device.platform == 'android' || device.platform == 'Android' || device.platform == "amazon-fireos" ){
-        pushNotification.register(
-            trainController.registrationCompleted,
-            trainController.registrationFailed,
-            {
-                "senderID":"761052820982",
-                "ecb":"onNotification"
-            });
+        //pushNotification.register(
+        //    trainController.registrationCompleted,
+        //    trainController.registrationFailed,
+        //    {
+        //        "senderID":"761052820982",
+        //        "ecb":"onNotification"
+        //    });
     } else {
         pushNotification.register(
             trainController.registrationCompleted,
@@ -60,14 +59,13 @@ $( document ).on( "mobileinit", function() {
     // Make your jQuery Mobile framework configuration changes here!
     $.support.cors = true;
     $.mobile.allowCrossDomainPages = true;
-    alert("MobileInit");
     $('#loginForm').on('submit',function(e){
         window.localStorage.setItem("username", $(e.target).find('input[name=username]').first().val());
         e.preventDefault();
         $.mobile.pageContainer.pagecontainer('change','#mainpage',
             {
                 transition: 'flip',
-                changeHash: false,
+                changeHash: true,
                 reverse: true,
                 showLoadMsg: true
             }
@@ -173,7 +171,6 @@ function TrainController(){
             data: JSON.stringify({"user":window.localStorage.getItem("username"),"type":window.device.platform,"token":window.localStorage.getItem("regId")}),
             success: function (data) {
                 alert("Succesvol geregistreerd op server.");
-
             },
             error: function (xhr, status) {
                 console.log(status+" Message: "+xhr.statusText);
