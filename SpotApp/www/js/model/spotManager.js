@@ -5,25 +5,18 @@ function SpotManager(){
     var self = this;
     var baseApiURL = "http://trainspot.herokuapp.com/api/spots";
     //var authString = "Basic " + btoa("dannyvdbiezen@outlook.com:XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g");
-    var yesterday = moment().subtract(1,'days');
-    this.getAllSpots = function(refresh,callback){
-        if(refresh || !self.getSpotsCacheLastUpdated() || moment(self.getSpotsCacheLastUpdated(),moment.ISO_8601).isBefore(yesterday)) {
-            $.ajax({
-                type: "get",
-                url: baseApiURL,
-                async: "true",
-                complete: function (data) {
-                    self.parseJson(data.responseText);
-                    callback(self.getSpotsCache());
-                },
-                error: function (xhr, status) {
-                    console.log(status + " Message: " + xhr.statusText);
-                }
-            });
-        }else{
-            console.log("Cache is still valid");
-            callback(this.getSpotsCache());
-        }
+    this.getAllSpots = function(callback){
+        $.ajax({
+            type: "get",
+            url: baseApiURL,
+            async: "true",
+            complete: function (data) {
+                callback(self.parseJson(data.responseText));
+            },
+            error: function (xhr, status) {
+                console.log(status + " Message: " + xhr.statusText);
+            }
+        });
     };
 
     this.parseJson = function (jsonText) {
@@ -41,7 +34,7 @@ function SpotManager(){
 
             spots.push(spot);
         });
-        this.updateSpotsCache(spots);
+        return spots
     };
 
     this.saveSpot = function (jsonData){
@@ -76,13 +69,12 @@ function SpotManager(){
         return window.localStorage.getObject("spotsListDate");
     };
 
-    this.sortSpots = function(disCalc){
-        var locations = this.getSpotsCache();
-        if(locations){
-            $.each(locations , function(index, val) {
-                locations[index].distance = disCalc.calculate(lat, lon, spots[index].lat, spots[index].lon);
+    this.sortSpots = function(disCalc,spots){
+        if(spots){
+            $.each(spots , function(index, val) {
+                spots[index].distance = disCalc.calculate(lat, lon, spots[index].lat, spots[index].lon);
             });
-            return locations.sort(function(a,b) { return parseFloat(a.distance) - parseFloat(b.distance) } );
+            return spots.sort(function(a,b) { return parseFloat(a.distance) - parseFloat(b.distance) } );
         }
         return false;
     }

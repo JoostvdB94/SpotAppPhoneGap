@@ -31,6 +31,7 @@
     <gap:plugin name="org.apache.cordova.core.dialogs" />
     <gap:plugin name="org.apache.cordova.core.vibration" />
     <gap:plugin name="com.phonegap.plugins.pushplugin" version="2.4.0" />
+    <gap:plugin name="com.synconset.imageresizer" version="0.1.1" />
 
     <access origin="http://webservices.ns.nl/"/>
     <icon src="icon.png"/>

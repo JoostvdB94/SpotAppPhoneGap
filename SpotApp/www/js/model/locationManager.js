@@ -7,21 +7,23 @@ function LocationManager(){
     //var authString = "Basic " + btoa("dannyvdbiezen@outlook.com:XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g");
     var disCalc = new DistanceCalculator();
     var geo = new Geolocation();
-
+    var yesterday = moment().subtract(1,'days');
     this.getAllLocations = function(refreshCache,callback){
-        $.ajax({
-            type: "get",
-            url: baseApiURL + "/api/locations",
-            dataType: "json",
-            async: "true",
-            success: function (data,textStatus,jqXhr) {
-                self.parseLocationJson(data);
-            },
+        if(refresh || !self.getLocationsCacheLastUpdated() || moment(self.getLocationsCacheLastUpdated(),moment.ISO_8601).isBefore(yesterday)) {
+            $.ajax({
+                type: "get",
+                url: baseApiURL + "/api/locations",
+                dataType: "json",
+                async: "true",
+                success: function (data, textStatus, jqXhr) {
+                    self.parseLocationJson(data);
+                },
 
-            error: function (xhr, status) {
-                console.log(status+" Message: "+xhr.statusText);
-            }
-        });
+                error: function (xhr, status) {
+                    console.log(status + " Message: " + xhr.statusText);
+                }
+            });
+        }
         $(this).on("parsedJson",function(){console.log("Recieved event");callback(self.getLocationsCache())});
     };
 

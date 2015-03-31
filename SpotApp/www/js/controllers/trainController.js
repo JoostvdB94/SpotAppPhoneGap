@@ -52,7 +52,7 @@ var onNotification = function(event){
 
 };
 var onNotificationAPN = function(event){
-  alert("NOTIFICATION!");
+  alert("NOTIFICATION!....Apple?");
 };
 
 $( document ).on( "mobileinit", function() {
@@ -87,9 +87,9 @@ $(document).ready(function(){
 
     $('#trainstations').on('beforepageload',trainController.showClosestTrainStations(false,function(){}));
     $('#photoPlaceholder').on('tap',function(){trainController.getCamera()});
-    $('#spots').on('pageload',trainController.showSpots(false, function(){}));
+    $('#myspots').on('pageload',trainController.showSpots(false, function(){}));
     $('#refreshLocations').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showClosestTrainStations(true,function(){$(e.target).removeClass('fa-spin');});});
-    $('#refreshSpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(true,function(){$(e.target).removeClass('fa-spin');});});
+    $('#refreshMySpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(true,function(){$(e.target).removeClass('fa-spin');});});
     $('form[name=spotForm]').on('submit',function(e){e.preventDefault();trainController.sendSpot(e.target);$('#photoPlaceholder').find('img').remove();e.target.reset();})
 });
 function TrainController(){
@@ -120,12 +120,12 @@ function TrainController(){
         var spotManager = new SpotManager();
         spotManager.getAllSpots(refreshCache,function(spots){
             console.log("Adding spots to spotlist");
-            var spotListDom = $('#spotsList');
+            var spotListDom = $('#mySpotsList');
             spotListDom.html("");
             $.each(spots , function(index, val) {
                 spotListDom.append('<li class="ui-li-has-thumb"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:'+val.image.extension+';base64,'+val.image.data+'" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">'+val.name+'</a></li>');
             });
-            $('#spotsCacheDate').text(moment(spotManager.getSpotsCacheLastUpdated()).format('DD-MM-YY HH:mm'));
+            $('#mySpotsCacheDate').text(moment().format('DD-MM-YY HH:mm'));
             spotListDom.listview().listview('refresh');
             callback();
         });
