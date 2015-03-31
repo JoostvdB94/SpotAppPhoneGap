@@ -2,7 +2,6 @@
  * Created by Joost on 24-3-2015.
  */
 var trainController;
-var pushNotification;
 $(document).ready(function(){
     trainController = new TrainController();
 });
@@ -44,6 +43,8 @@ $(document).ready(function(){
     $('#refreshMySpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(true,function(){$(e.target).removeClass('fa-spin');});});
     $('form[name=spotForm]').on('submit',function(e){e.preventDefault();trainController.sendSpot(e.target);$('#photoPlaceholder').find('img').remove();e.target.reset();})
 });
+
+
 function TrainController(){
     var self = this;
     var geoObj = new Geolocation();

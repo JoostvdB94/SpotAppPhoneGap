@@ -6,7 +6,7 @@ window.registration = new Registration();
 function Registration(){
     document.addEventListener('deviceready',function(){
         var device = window.device;
-        pushNotification = window.plugins.pushNotification;
+        var pushNotification = window.plugins.pushNotification;
         if ( device.platform == 'android' || device.platform == 'Android' || device.platform == "amazon-fireos" ){
             pushNotification.register(
                 window.registration.registrationCompleted,
