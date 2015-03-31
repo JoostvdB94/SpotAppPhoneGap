@@ -7,54 +7,6 @@ $(document).ready(function(){
     trainController = new TrainController();
 });
 
-document.addEventListener('deviceready',function(){
-    var device = window.device;
-    pushNotification = window.plugins.pushNotification;
-    if ( device.platform == 'android' || device.platform == 'Android' || device.platform == "amazon-fireos" ){
-        pushNotification.register(
-            trainController.registrationCompleted,
-            trainController.registrationFailed,
-            {
-                "senderID":"761052820982",
-                "ecb":"onNotification"
-            });
-    } else {
-        pushNotification.register(
-            trainController.registrationCompleted,
-            trainController.registrationFailed,
-            {
-                "badge":"true",
-                "sound":"true",
-                "alert":"true",
-                "ecb":"onNotificationAPN"
-            });
-    }
-});
-
-var onNotification = function(event){
-    switch(event.event){
-        case 'registered':
-            if(event.regid.length > 0){
-                alert("Registered!" + event.regid);
-                window.localStorage.setItem("regId",event.regid);
-            }
-            break;
-        case 'message':
-            if(e.foreground){
-                alert("Alert in foreground");
-            }else{
-                alert("Alert was in Background");
-            }
-            break;
-        default:
-            break;
-    }
-
-};
-var onNotificationAPN = function(event){
-  alert("NOTIFICATION!....Apple?");
-};
-
 $( document ).on( "mobileinit", function() {
     // Make your jQuery Mobile framework configuration changes here!
     $.support.cors = true;
@@ -146,35 +98,13 @@ function TrainController(){
         var formData = $(form).form();
         var jsonData = JSON.parse("{}");
         jsonData.name = formData['name'];
-        jsonData.description= "";
+        jsonData.description= formData["description"] || "";
         jsonData.latitude = geoObj.getLatitude();
         jsonData.longitude= geoObj.getLongitude();
         jsonData.image = {extension:'image/jpeg',data:formData['image']};
         jsonData.owner = "RandomID";
+        jsonData.creationDate = moment().valueOf();
         var spotMan = new SpotManager();
         spotMan.saveSpot(jsonData);
     };
-
-    this.registrationCompleted = function(result){
-    };
-
-    this.registrationFailed = function(result){
-
-    };
-
-    this.registerToBackend = function(){
-        $.ajax({
-            type: "post",
-            url: "http://compuplex.nl:10030/subscribe",
-            dataType:'json',
-            contentType: "application/json",
-            data: JSON.stringify({"user":window.localStorage.getItem("username"),"type":window.device.platform,"token":window.localStorage.getItem("regId")}),
-            success: function (data) {
-                alert("Succesvol geregistreerd op server.");
-            },
-            error: function (xhr, status) {
-                console.log(status+" Message: "+xhr.statusText);
-            }
-        });
-    }
 }

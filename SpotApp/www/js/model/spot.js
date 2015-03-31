@@ -1,4 +1,4 @@
-function Spot(id, name, description, latitude, longitude,image,owner){
+function Spot(id, name, description, latitude, longitude,image,owner,creationDate){
     this.id = id;
     this.name = name;
     this.description = description;
@@ -6,4 +6,5 @@ function Spot(id, name, description, latitude, longitude,image,owner){
     this.latitude = latitude;
     this.image = image;
     this.owner = owner;
+    this.creationDate = creationDate;
 }
