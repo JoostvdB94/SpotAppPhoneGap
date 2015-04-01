@@ -46,7 +46,7 @@ function SpotManager(){
             spot.longitude = jsonSpots[index].longitude;
             spot.latitude = jsonSpots[index].latitude;
             spot.image = new Image(jsonSpots[index].image.extension,jsonSpots[index].image.data);
-            spot.owner = window.localStorage.getItem('userId');
+            spot.owner = jsonSpots[index].owner._id;
             spot.distance = jsonSpots[index].distance;
             spots.push(spot);
         });

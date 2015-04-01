@@ -145,7 +145,7 @@ function TrainController(){
         jsonData.latitude = geoObj.getLatitude();
         jsonData.longitude= geoObj.getLongitude();
         jsonData.image = {extension:'image/jpeg',data:formData['image']};
-        jsonData.owner = "RandomID";
+        jsonData.owner = window.localStorage.getItem('userId');
         jsonData.creationDate = moment().valueOf();
         spotManager.saveSpot(jsonData);
     };
