@@ -71,6 +71,7 @@ $( document ).on( "mobileinit", function() {
         window.registration.registerToBackend();
     });
     $.mobile.defaultPageTransition = "slide";
+
 });
 
 //Bindings
@@ -83,7 +84,7 @@ $(document).ready(function(){
         return formData;
     };
 
-
+    $(window).on("swiperight",function(){history.go(-1);});
     $('#rangeSetting').on('change',function(e){window.localStorage.setItem("itemsInRange",$(e.target).val());});
     $('#limitSetting').on('change',function(e){window.localStorage.setItem("itemsPerRequest",$(e.target).val());});
     $('#rangeSetting').val(window.localStorage.getItem("itemsInRange") || 50).trigger("change");
