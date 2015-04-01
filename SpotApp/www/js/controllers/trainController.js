@@ -195,7 +195,7 @@ function TrainController(){
                     var loadMoreMySpotsButton = $('#loadMyNextSpots');
                     mySpotListDom.find('li').not('#loadMyNextSpots').remove();
                     $.each(spots, function (index, val) {
-                        loadMoreMySpotsButton.before('<li class="ui-li-has-thumb" id="MySpot_'+val.id+'"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '<p class="grey">'+val.description+'</p></a><span class="ui-li-count">' + val.distance.toFixed(2) + ' KM</span><span class="ui-li-count">Edit</span></li>');
+                        loadMoreMySpotsButton.before('<li class="ui-li-has-thumb" id="MySpot_'+val.id+'"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '<p class="grey">'+val.description+'</p></a><span class="ui-li-count">Edit</span></li>');
                     });
                     $('#mySpotsCacheDate').text(moment().format('DD-MM-YY HH:mm'));
                     mySpotListDom.listview().listview('refresh');
