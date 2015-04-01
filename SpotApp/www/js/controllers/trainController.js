@@ -53,7 +53,6 @@ $( document ).on( "mobileinit", function() {
                     window.localStorage.setItem("userId",data.user._id);
                     $.mobile.pageContainer.pagecontainer('change', '#mainpage',
                         {
-                            transition: 'flip',
                             changeHash: true,
                             reverse: true,
                             showLoadMsg: true
@@ -71,7 +70,7 @@ $( document ).on( "mobileinit", function() {
         });
         window.registration.registerToBackend();
     });
-    $.mobile.defaultPageTransition = "slide";
+    $.mobile.defaultPageTransition = ($(document).width() < 450)? "slide" : "none";
 
 });
 
@@ -102,6 +101,42 @@ $(document).ready(function(){
     $('form[name=spotForm]').on('submit',function(e){e.preventDefault();trainController.sendSpot(e.target);$('#photoPlaceholder').find('img').remove();e.target.reset();});
     $('#newLocationForm').on('submit',function(e){e.preventDefault();trainController.sendLocation($(e.target));});
     $('#useCurrentLocationButton').on('tap',function(){$('#map').locationpicker("location",({latitude:window.localStorage.getItem('latitude'),longitude:window.localStorage.getItem('longitude')}));});
+    $('#registerUserButton').on('tap',function(e){
+        var registrationData = $(e.target).closest('form').form();
+        if(registrationData.length > 1 && registrationData['username'] != "" && registrationData['password'] != ""){
+            $.ajax({
+                type: "POST",
+                url: "http://trainspot.herokuapp.com/signup",
+                dataType:'json',
+                contentType: "application/json",
+                data: JSON.stringify({"username":registrationData["username"],"password":registrationData["password"]}),
+                beforeSend:function(){
+                    $(e.target).find('[type=submit]').prop("disabled",true);
+                },
+                success: function (data) {
+                    if(data.authenticated) {
+                        window.localStorage.setItem("userId",data.user._id);
+                        $.mobile.pageContainer.pagecontainer('change', '#mainpage',
+                            {
+                                changeHash: true,
+                                reverse: true,
+                                showLoadMsg: true
+                            }
+                        );
+                        $(e.target).find('[type=submit]').prop("disabled",false);
+                    }else{
+                        $(e.target).find('[type=submit]').prop("disabled",true);
+                    }
+                },
+                error: function (xhr, status) {
+                    $(e.target).find('[type=submit]').prop("disabled",false);
+                    console.log(status+" Message: "+xhr.statusText);
+                }
+            });
+        }else{
+            alert("Vul beide velden in.");
+        }
+    });
 });
 
 
@@ -139,7 +174,7 @@ function TrainController(){
                     var loadMoreSpotsButton = $('#loadNextSpots');
                     spotListDom.find('li').not('#loadNextSpots').remove();
                     $.each(spots, function (index, val) {
-                        loadMoreSpotsButton.before('<li class="ui-li-has-thumb"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '</a><span class="ui-li-count">' + val.distance + ' KM</span></li>');
+                        loadMoreSpotsButton.before('<li class="ui-li-has-thumb"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '<p class="grey">'+val.description+'</p></a><span class="ui-li-count">' + val.distance.toFixed(2) + ' KM</span></li>');
                     });
                     $('#spotsCacheDate').text(moment().format('DD-MM-YY HH:mm'));
                     spotListDom.listview().listview('refresh');
@@ -160,7 +195,7 @@ function TrainController(){
                     var loadMoreMySpotsButton = $('#loadMyNextSpots');
                     mySpotListDom.find('li').not('#loadMyNextSpots').remove();
                     $.each(spots, function (index, val) {
-                        loadMoreMySpotsButton.before('<li class="ui-li-has-thumb" id="MySpot_'+val.id+'"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '</a><span class="ui-li-count">' + val.distance + ' KM</span><span class="ui-li-count">Edit</span></li>');
+                        loadMoreMySpotsButton.before('<li class="ui-li-has-thumb" id="MySpot_'+val.id+'"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '<p class="grey">'+val.description+'</p></a><span class="ui-li-count">' + val.distance.toFixed(2) + ' KM</span><span class="ui-li-count">Edit</span></li>');
                     });
                     $('#mySpotsCacheDate').text(moment().format('DD-MM-YY HH:mm'));
                     mySpotListDom.listview().listview('refresh');
@@ -183,15 +218,18 @@ function TrainController(){
 
     this.sendSpot = function(form){
         var formData = $(form).form();
-        var jsonData = JSON.parse("{}");
-        jsonData.name = formData['name'];
-        jsonData.description= formData["description"] || "";
-        jsonData.latitude = geoObj.getLatitude();
-        jsonData.longitude= geoObj.getLongitude();
-        jsonData.image = {extension:'image/jpeg',data:formData['image']};
-        jsonData.owner = window.localStorage.getItem('userId');
-        jsonData.creationDate = moment().valueOf();
-        spotManager.saveSpot(jsonData);
+        geoObj.getLocation(function(location) {
+            var jsonData = JSON.parse("{}");
+            jsonData.name = formData['name'];
+            jsonData.description = formData["description"] || "";
+            jsonData.latitude = location.coords.latitude;
+            jsonData.longitude = location.coords.longitude;
+            jsonData.image = {extension: 'image/jpeg', data: formData['image']};
+            jsonData.owner = window.localStorage.getItem('userId');
+            jsonData.creationDate = moment().valueOf();
+            spotManager.saveSpot(jsonData);
+            console.log(JSON.stringify(jsonData));
+        });
     };
 
     this.sendLocation = function(form){
@@ -205,7 +243,6 @@ function TrainController(){
         form[0].reset();
         $.mobile.pageContainer.pagecontainer('change','#trainstations',
             {
-                transition: 'slide',
                 changeHash: true,
                 reverse: true,
                 showLoadMsg: true

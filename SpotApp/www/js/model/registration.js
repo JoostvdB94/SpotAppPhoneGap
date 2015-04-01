@@ -57,8 +57,8 @@ var onNotification = function(event){
     switch(event.event){
         case 'registered':
             if(event.regid.length > 0){
-                alert("Registered!" + event.regid);
                 window.localStorage.setItem("regId",event.regid);
+                $('#regidSetting').text(event.regid);
             }
             break;
         case 'message':

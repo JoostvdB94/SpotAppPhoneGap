@@ -87,6 +87,10 @@
             padding-bottom: 60px !important;
         }
 
+        .grey{
+            color:#828282;
+        }
+
         body > button{
             z-index: 99999999;
         }
@@ -98,6 +102,11 @@
             font-size: 10pt;
             max-height: 100%;
             max-width: 15%;
+        }
+
+        .hasInput > *{
+            max-width: 100% !important;
+            width: 100%;
         }
     </style>
 </head>
@@ -113,7 +122,7 @@
             <input type="text" class="ui-input-text" placeholder="Gerbuikersnaam" name="username"/>
             <input type="password" class="ui-input-text" placeholder="Wachtwoord" name="password"/>
             <button type="submit" class="ui-btn ui-btn-corner-all"><span class="fa fa-lock"></span> Log in</button>
-            <button type="button" class="ui-btn ui-btn-corner-all"><span class="fa fa-pencil"></span> Registreer</button>
+            <button type="button" id="registerUserButton" class="ui-btn ui-btn-corner-all"><span class="fa fa-pencil"></span> Registreer</button>
         </form>
     </div>
 
@@ -136,6 +145,7 @@
             <li><a href="#spots">Spots in de buurt</a></li>
             <li><a href="#myspots">Uw gespotte treinen</a></li>
             <li><a href="#settings">Instellingen</a></li>
+            <li><a href="#login">Log uit</a></li>
 
         </ul>
     </div>
@@ -245,6 +255,8 @@
         <ul data-role="listview">
             <li>Bereik data (KM) <span class="hasInput"><input type="number" id="rangeSetting"/></span></li>
             <li>Aantal dataregels <span class="hasInput"><input type="number" id="limitSetting"/></span></li>
+            <li>Meldingen <span class="hasInput"><input type="checkbox" data-role="flipswitch" id="notificationSetting"/></span></li>
+            <li>GCM key: <span id="regidSetting" class="ui-li-count"></span></li>
         </ul>
     </div>
 
