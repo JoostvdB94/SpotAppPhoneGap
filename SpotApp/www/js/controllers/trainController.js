@@ -85,6 +85,7 @@ $(document).ready(function(){
     };
 
     $(window).on("swiperight",function(){history.go(-1);});
+    $(window).on("swiperight",function(){history.go(+1);});
     $('#rangeSetting').on('change',function(e){window.localStorage.setItem("itemsInRange",$(e.target).val());});
     $('#limitSetting').on('change',function(e){window.localStorage.setItem("itemsPerRequest",$(e.target).val());});
     $('#rangeSetting').val(window.localStorage.getItem("itemsInRange") || 50).trigger("change");
