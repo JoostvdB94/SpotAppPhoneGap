@@ -12,7 +12,7 @@ function SpotManager(){
             url: baseApiURL+"?limit="+window.localStorage.getItem("itemsPerRequest")+"&latitude="+latitude+"&longitude="+longitude+"&range="+window.localStorage.getItem("itemsInRange"),
             async: "true",
             complete: function (data) {
-                callback(self.parseJson(data.responseText));
+                callback(self.sortSpots(new DistanceCalculator(),self.parseJson(data.responseText)));
             },
             error: function (xhr, status) {
                 console.log("Error ophalen CloseSpots "+ status + " Message: " + xhr.statusText);
@@ -27,7 +27,7 @@ function SpotManager(){
             url: baseApiURL+"?owner="+window.localStorage.getItem("userId")+"&limit="+window.localStorage.getItem("itemsPerRequest"),
             async: "true",
             complete: function (data) {
-                callback(self.parseJson(data.responseText));
+                callback(self.sortSpotsByTime(self.parseJson(data.responseText)));
             },
             error: function (xhr, status) {
                 console.log("Error ophalen MySpots "+status + " Message: " + xhr.statusText);
@@ -77,6 +77,13 @@ function SpotManager(){
                 spots[index].distance = disCalc.calculate(lat, lon, spots[index].lat, spots[index].lon);
             });
             return spots.sort(function(a,b) { return parseFloat(a.distance) - parseFloat(b.distance) } );
+        }
+        return false;
+    };
+
+    this.sortSpotsByTime = function(spots){
+        if(spots){
+            return spots.sort(function(a,b) { return parseInt(a.creationDate) - parseInt(b.creationDate) } );
         }
         return false;
     }

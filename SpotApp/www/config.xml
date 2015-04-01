@@ -36,7 +36,7 @@
     <gap:plugin name="com.synconset.imageresizer" version="0.1.1" />
 
     <access origin="http://webservices.ns.nl/"/>
-    <icon src="icon.png"/>
+    <icon src="www/icon.png"/>
     <icon src="res/icon/android/icon-36-ldpi.png" gap:platform="android" gap:qualifier="ldpi"/>
     <icon src="res/icon/android/icon-48-mdpi.png" gap:platform="android" gap:qualifier="mdpi"/>
     <icon src="res/icon/android/icon-72-hdpi.png" gap:platform="android" gap:qualifier="hdpi"/>
