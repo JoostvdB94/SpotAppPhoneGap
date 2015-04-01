@@ -12,21 +12,43 @@ $(document).ready(function(){
 
 $( document ).on( "mobileinit", function() {
     // Make your jQuery Mobile framework configuration changes here!
+    alert("Mobileinit");
     $.support.cors = true;
     $.mobile.allowCrossDomainPages = true;
     $('#loginForm').on('submit',function(e){
-        window.localStorage.setItem("username", $(e.target).find('input[name=username]').first().val());
-        //TODO echte id ophalen
-        window.localStorage.setItem("userId","55152031e4b0f1a65835fbea");
         e.preventDefault();
-        $.mobile.pageContainer.pagecontainer('change','#mainpage',
-            {
-                transition: 'flip',
-                changeHash: true,
-                reverse: true,
-                showLoadMsg: true
+        window.localStorage.setItem("username", $(e.target).find('input[name=username]').first().val());
+        $.ajax({
+            type: "post",
+            url: "http://trainspot.herokuapp.com/login",
+            dataType:'json',
+            contentType: "application/json",
+            data: JSON.stringify({"username":window.localStorage.getItem('username'),"password":$(e.target).find('input[name=password]').first().val()}),
+            beforeSend:function(){
+                $(e.target).find('[type=submit]').prop("disabled",true);
+            },
+            success: function (data) {
+                if(data.authenticated == "true") {
+                    window.localStorage.setItem("userId",data.user._id);
+                    alert(window.localStorage.getItem("userId"));
+                    $.mobile.pageContainer.pagecontainer('change', '#mainpage',
+                        {
+                            transition: 'flip',
+                            changeHash: true,
+                            reverse: true,
+                            showLoadMsg: true
+                        }
+                    );
+                    $(e.target).find('[type=submit]').prop("disabled",false);
+                }else{
+                    $(e.target).find('[type=submit]').prop("disabled",true);
+                }
+            },
+            error: function (xhr, status) {
+                $(e.target).find('[type=submit]').prop("disabled",false);
+                console.log(status+" Message: "+xhr.statusText);
             }
-        );
+        });
         window.registration.registerToBackend();
     });
     $.mobile.defaultPageTransition = "slide";

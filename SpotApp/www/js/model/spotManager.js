@@ -63,7 +63,6 @@ function SpotManager(){
             data: JSON.stringify(jsonData),
             success: function (data) {
                 alert("Succesvol opgestuurd.");
-                //TODO Stuur pushnotificatie naar anderen met ID van spot data._id
             },
             error: function (xhr, status) {
                 console.log(status+" Message: "+xhr.statusText);
