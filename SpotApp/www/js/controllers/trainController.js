@@ -12,7 +12,27 @@ $(document).ready(function(){
 
 $( document ).on( "mobileinit", function() {
     // Make your jQuery Mobile framework configuration changes here!
-    alert("Mobileinit");
+    $.ajax({
+        type: "get",
+        url: "http://trainspot.herokuapp.nl/login",
+        dataType:"json",
+        async: "true",
+        complete: function (data) {
+            if(data.authenticated){
+                $.mobile.pageContainer.pagecontainer('change', '#mainpage',
+                    {
+                        transition: 'flip',
+                        changeHash: true,
+                        reverse: true,
+                        showLoadMsg: true
+                    }
+                );
+            }
+        },
+        error: function (xhr, status) {
+            console.log("Error ophalen MySpots "+status + " Message: " + xhr.statusText);
+        }
+    });
     $.support.cors = true;
     $.mobile.allowCrossDomainPages = true;
     $('#loginForm').on('submit',function(e){
@@ -30,7 +50,6 @@ $( document ).on( "mobileinit", function() {
             success: function (data) {
                 if(data.authenticated) {
                     window.localStorage.setItem("userId",data.user._id);
-                    alert(window.localStorage.getItem("userId"));
                     $.mobile.pageContainer.pagecontainer('change', '#mainpage',
                         {
                             transition: 'flip',

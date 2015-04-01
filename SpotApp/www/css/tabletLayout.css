@@ -1,0 +1,36 @@
+@media screen and (min-width: 450px){
+    div[data-role="page"]:not(#mainpage):not(#login){
+        display:inline-block ;
+        float: right;
+        max-width: 60%;
+        width:60%;
+        position: relative;
+    }
+
+    div[data-role="page"]:not(#mainpage):not(.ui-page-active){
+        visibility: hidden !important;
+        display: none !important;
+    }
+
+    .ui-page-active{
+        visibility: visible !important;
+    }
+
+    #login.ui-page-active{
+        z-index: 9999999999;
+    }
+
+    #mainpage {
+        display:block ;
+        visibility: visible ;
+        float: left;
+        width: 40%;
+        z-index: 2000;
+        position: relative;
+        border-right: 2px solid gold;
+    }
+
+    #mainpage.ui-page-active{
+        width:100%;
+    }
+}
