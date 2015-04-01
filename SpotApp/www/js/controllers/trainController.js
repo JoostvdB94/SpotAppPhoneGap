@@ -94,8 +94,7 @@ $(document).ready(function(){
     $('#trainstations').on('pagecreate',function(e){trainController.showClosestTrainStations(false,function(s){})});
     $('#spots').on('pagecreate',function(e){trainController.showSpots(function(){})});
     $('#myspots').on('pagecreate',function(e){trainController.showMySpots(function(){})});
-    $('#photoPlaceholder').on('tap',function(e){trainController.getCamera($('#photoPlaceholder'))});
-    $('#photoEditPlaceholder').on('tap',function(e){trainController.getCamera($('#photoEditPlaceholder'))});
+    $('#photoPlaceholder').on('tap',function(e){trainController.getCamera()});
     $('#refreshLocations').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showClosestTrainStations(true,function(){$(e.target).removeClass('fa-spin');});});
     $('#refreshMySpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showMySpots(function(){$(e.target).removeClass('fa-spin');})});
     $('#refreshSpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(function(){$(e.target).removeClass('fa-spin');});});
@@ -104,7 +103,7 @@ $(document).ready(function(){
     $('#useCurrentLocationButton').on('tap',function(){$('#map').locationpicker("location",({latitude:window.localStorage.getItem('latitude'),longitude:window.localStorage.getItem('longitude')}));});
     $('#registerUserButton').on('tap',function(e){
         var registrationData = $(e.target).closest('form').form();
-        if(registrationData.length > 1 && registrationData['username'] != "" && registrationData['password'] != ""){
+        if(registrationData['username'] != "" && registrationData['password'] != ""){
             $.ajax({
                 type: "POST",
                 url: "http://trainspot.herokuapp.com/signup",
@@ -179,15 +178,10 @@ $('.editableSpot').bind('tap',function(e){
     });
 });
 
-$('#spotEditForm').on("submit",function(){
-
-});
-
 
 function TrainController(){
     var self = this;
     var geoObj = new Geolocation();
-    var placeholder;
     this.showClosestTrainStations = function(refreshCache, callback){
         var loadLocations = function(geoLocation){
             console.log("Getting stations..");
@@ -250,13 +244,13 @@ function TrainController(){
     };
 
     this.addPictureToScreen = function(base64){
+        var placeholder = $('#photoPlaceholder');
         placeholder.find('img').remove();
         placeholder.prepend('<img style="width: 100%; float:left;" src="data:image/jpeg;base64,'+base64+'"></img>');
         placeholder.find('input[name=image]').val(base64);
     };
 
     this.getCamera = function(imgPlaceholder){
-        placeholder = imgPlaceholder;
         navigator.camera.getPicture(self.addPictureToScreen(), function(){alert("Camera not available.")}, {allowEdit: true,quality: 50, destinationType : Camera.DestinationType.DATA_URL})
     };
 
