@@ -11,6 +11,8 @@ $(document).ready(function(){
 });
 
 $( document ).on( "mobileinit", function() {
+    $.support.cors = true;
+    $.mobile.allowCrossDomainPages = true;
     // Make your jQuery Mobile framework configuration changes here!
     $.ajax({
         type: "get",
@@ -33,8 +35,7 @@ $( document ).on( "mobileinit", function() {
             console.log("Error ophalen MySpots "+status + " Message: " + xhr.statusText);
         }
     });
-    $.support.cors = true;
-    $.mobile.allowCrossDomainPages = true;
+
     $('#loginForm').on('submit',function(e){
         e.preventDefault();
         window.localStorage.setItem("username", $(e.target).find('input[name=username]').first().val());
@@ -157,7 +158,7 @@ function TrainController(){
                     console.log("Adding spots to spotlist, found "+spots.length);
                     var mySpotListDom = $('#mySpotsList');
                     var loadMoreMySpotsButton = $('#loadMyNextSpots');
-                    spotListDom.find('li').not('#loadMyNextSpots').remove();
+                    mySpotListDom.find('li').not('#loadMyNextSpots').remove();
                     $.each(spots, function (index, val) {
                         loadMoreMySpotsButton.before('<li class="ui-li-has-thumb" id="MySpot_'+val.id+'"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '</a><span class="ui-li-count">' + val.distance + ' KM</span><span class="ui-li-count">Edit</span></li>');
                     });

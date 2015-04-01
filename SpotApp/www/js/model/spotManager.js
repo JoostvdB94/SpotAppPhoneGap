@@ -73,7 +73,7 @@ function SpotManager(){
     this.sortSpots = function(disCalc,spots){
         if(spots){
             $.each(spots , function(index, val) {
-                spots[index].distance = disCalc.calculate(lat, lon, spots[index].lat, spots[index].lon);
+                spots[index].distance = disCalc.calculate(window.localStorage.getItem("latitude"), window.localStorage.getItem("longitude"), spots[index].latitude, spots[index].longitude);
             });
             return spots.sort(function(a,b) { return parseFloat(a.distance) - parseFloat(b.distance) } );
         }
