@@ -2,8 +2,12 @@
  * Created by Joost on 24-3-2015.
  */
 var trainController;
+var spotManager;
+var locationManager;
 $(document).ready(function(){
     trainController = new TrainController();
+    spotManager = new SpotManager();
+    locationManager = new LocationManager();
 });
 
 $( document ).on( "mobileinit", function() {
@@ -12,6 +16,8 @@ $( document ).on( "mobileinit", function() {
     $.mobile.allowCrossDomainPages = true;
     $('#loginForm').on('submit',function(e){
         window.localStorage.setItem("username", $(e.target).find('input[name=username]').first().val());
+        //TODO echte id ophalen
+        window.localStorage.setItem("userId","55152031e4b0f1a65835fbea");
         e.preventDefault();
         $.mobile.pageContainer.pagecontainer('change','#mainpage',
             {
@@ -36,12 +42,21 @@ $(document).ready(function(){
         return formData;
     };
 
-    $('#trainstations').on('beforepageload',trainController.showClosestTrainStations(false,function(){}));
-    $('#photoPlaceholder').on('tap',function(){trainController.getCamera()});
-    $('#myspots').on('pageload',trainController.showSpots(function(){}));
+
+    $('#rangeSetting').on('change',function(e){window.localStorage.setItem("itemsInRange",$(e.target).val());});
+    $('#limitSetting').on('change',function(e){window.localStorage.setItem("itemsPerRequest",$(e.target).val());});
+    $('#rangeSetting').val(window.localStorage.getItem("itemsInRange") || 50).trigger("change");
+    $('#limitSetting').val(window.localStorage.getItem("itemsPerRequest") || 5).trigger("change");
+
+    $('#trainstations').on('pagecreate',function(e){trainController.showClosestTrainStations(false,function(s){})});
+    $('#spots').on('pagecreate',function(e){trainController.showSpots(function(){})});
+    $('#myspots').on('pagecreate',function(e){trainController.showMySpots(function(){})});
+    $('#photoPlaceholder').on('tap',function(e){trainController.getCamera()});
     $('#refreshLocations').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showClosestTrainStations(true,function(){$(e.target).removeClass('fa-spin');});});
-    $('#refreshMySpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(true,function(){$(e.target).removeClass('fa-spin');});});
-    $('form[name=spotForm]').on('submit',function(e){e.preventDefault();trainController.sendSpot(e.target);$('#photoPlaceholder').find('img').remove();e.target.reset();})
+    $('#refreshSpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(function(){$(e.target).removeClass('fa-spin');});});
+    $('form[name=spotForm]').on('submit',function(e){e.preventDefault();trainController.sendSpot(e.target);$('#photoPlaceholder').find('img').remove();e.target.reset();});
+    $('#newLocationForm').on('submit',function(e){e.preventDefault();trainController.sendLocation($(e.target));});
+    $('#useCurrentLocationButton').on('tap',function(){$('#map').locationpicker("location",({latitude:window.localStorage.getItem('latitude'),longitude:window.localStorage.getItem('longitude')}));});
 });
 
 
@@ -70,18 +85,44 @@ function TrainController(){
 
     this.showSpots = function(callback){
         console.log("Getting spots...");
-        var spotManager = new SpotManager();
-        spotManager.getAllSpots(function(spots){
-            console.log("Adding spots to spotlist");
-            var spotListDom = $('#mySpotsList');
-            spotListDom.html("");
-            $.each(spots , function(index, val) {
-                spotListDom.append('<li class="ui-li-has-thumb"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:'+val.image.extension+';base64,'+val.image.data+'" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">'+val.name+'</a></li>');
-            });
-            $('#mySpotsCacheDate').text(moment().format('DD-MM-YY HH:mm'));
-            spotListDom.listview().listview('refresh');
-            callback();
-        });
+        geoObj.getLocation(function(location) {
+                var rangeLat = geoObj.getLatitude();
+                var rangeLon = geoObj.getLongitude();
+                spotManager.getCloseSpots(function (spots) {
+                    console.log("Adding spots to spotlist, found "+spots.length);
+                    var spotListDom = $('#spotsList');
+                    var loadMoreSpotsButton = $('#loadNextSpots');
+                    spotListDom.find('li').not('#loadNextSpots').remove();
+                    $.each(spots, function (index, val) {
+                        loadMoreSpotsButton.before('<li class="ui-li-has-thumb"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '</a><span class="ui-li-count">' + val.distance + ' KM</span></li>');
+                    });
+                    $('#spotsCacheDate').text(moment().format('DD-MM-YY HH:mm'));
+                    spotListDom.listview().listview('refresh');
+                    callback();
+                }, rangeLat, rangeLon);
+            },function(){}
+        );
+    };
+
+    this.showMySpots = function(callback){
+        console.log("Getting own spots...");
+        geoObj.getLocation(function(location) {
+                var rangeLat = geoObj.getLatitude();
+                var rangeLon = geoObj.getLongitude();
+                spotManager.getMySpots(function (spots) {
+                    console.log("Adding spots to spotlist, found "+spots.length);
+                    var mySpotListDom = $('#mySpotsList');
+                    var loadMoreMySpotsButton = $('#loadMyNextSpots');
+                    spotListDom.find('li').not('#loadMyNextSpots').remove();
+                    $.each(spots, function (index, val) {
+                        loadMoreMySpotsButton.before('<li class="ui-li-has-thumb" id="MySpot_'+val.id+'"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '</a><span class="ui-li-count">' + val.distance + ' KM</span><span class="ui-li-count">Edit</span></li>');
+                    });
+                    $('#mySpotsCacheDate').text(moment().format('DD-MM-YY HH:mm'));
+                    mySpotListDom.listview().listview('refresh');
+                    callback();
+                }, rangeLat, rangeLon);
+            },function(){}
+        );
     };
 
     this.addPictureToScreen = function(base64){
@@ -105,7 +146,25 @@ function TrainController(){
         jsonData.image = {extension:'image/jpeg',data:formData['image']};
         jsonData.owner = "RandomID";
         jsonData.creationDate = moment().valueOf();
-        var spotMan = new SpotManager();
-        spotMan.saveSpot(jsonData);
+        spotManager.saveSpot(jsonData);
+    };
+
+    this.sendLocation = function(form){
+        var formData = $(form).form();
+        var jsonData = JSON.parse("{}");
+        jsonData.name = formData['name'];
+        jsonData.latitude = formData['lat'];
+        jsonData.longitude= formData['lon'];
+        jsonData.type = "userLocation";
+        locationManager.saveLocation(jsonData);
+        form[0].reset();
+        $.mobile.pageContainer.pagecontainer('change','#trainstations',
+            {
+                transition: 'slide',
+                changeHash: true,
+                reverse: true,
+                showLoadMsg: true
+            }
+        );
     };
 }

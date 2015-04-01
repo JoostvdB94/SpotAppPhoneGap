@@ -7,4 +7,5 @@ function Spot(id, name, description, latitude, longitude,image,owner,creationDat
     this.image = image;
     this.owner = owner;
     this.creationDate = creationDate;
+    this.distance = 0;
 }

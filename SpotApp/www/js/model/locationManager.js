@@ -3,6 +3,7 @@
  */
 function LocationManager(){
     var self = this;
+    var currentPageNumber = 1;
     var baseApiURL = "http://trainspot.herokuapp.com";
     //var authString = "Basic " + btoa("dannyvdbiezen@outlook.com:XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g");
     var disCalc = new DistanceCalculator();
@@ -23,8 +24,11 @@ function LocationManager(){
                     console.log(status + " Message: " + xhr.statusText);
                 }
             });
+            $(this).on("parsedJson",function(){callback(self.getLocationsCache())});
+        }else{
+            callback(self.getLocationsCache());
         }
-        $(this).on("parsedJson",function(){console.log("Recieved event");callback(self.getLocationsCache())});
+
     };
 
     this.parseLocationJson = function (jsonArray) {
@@ -52,7 +56,6 @@ function LocationManager(){
             });
             self.updateLocationCache(locations);
             self.sortLocations();
-            console.log(locations);
             $(self).trigger("parsedJson");
         }
     };
@@ -76,5 +79,23 @@ function LocationManager(){
             this.updateLocationCache(locations.sort(function(a,b) { return parseFloat(a.distance) - parseFloat(b.distance) } ));
         }
         return false;
+    };
+
+    this.saveLocation = function(formData) {
+
+        var baseApiURL = "http://trainspot.herokuapp.com/api/locations";
+        $.ajax({
+            type: "post",
+            url: baseApiURL,
+            dataType:'json',
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            success: function (data) {
+
+            },
+            error: function (xhr, status) {
+                console.log(status+" Message: "+xhr.statusText);
+            }
+        });
     }
 }

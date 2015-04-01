@@ -9,6 +9,9 @@ function Geolocation(){
         navigator.geolocation.getCurrentPosition(function(position){
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
+
+            window.localStorage.setItem('latitude',latitude);
+            window.localStorage.setItem('longitude',longitude);
             succesCallback(position);
             console.log(position);
         }, function(message){

@@ -79,6 +79,7 @@ label.ui-btn {
 }
 .ui-btn {
 	text-decoration: none !important;
+    border-radius: 5px;
 }
 .ui-btn-active {
 	cursor: pointer;

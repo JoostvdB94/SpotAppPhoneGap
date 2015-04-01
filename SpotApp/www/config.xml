@@ -30,6 +30,8 @@
     <gap:plugin name="org.apache.cordova.core.geolocation" />
     <gap:plugin name="org.apache.cordova.core.dialogs" />
     <gap:plugin name="org.apache.cordova.core.vibration" />
+    <gap:plugin name="org.apache.cordova.statusbar" version="0.1.4" />
+
     <gap:plugin name="com.phonegap.plugins.pushplugin" version="2.4.0" />
     <gap:plugin name="com.synconset.imageresizer" version="0.1.1" />
 

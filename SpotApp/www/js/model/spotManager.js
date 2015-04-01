@@ -3,18 +3,34 @@
  */
 function SpotManager(){
     var self = this;
+    var mySpotsCurrentPage = 1;
     var baseApiURL = "http://trainspot.herokuapp.com/api/spots";
     //var authString = "Basic " + btoa("dannyvdbiezen@outlook.com:XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g");
-    this.getAllSpots = function(callback){
+    this.getCloseSpots = function(callback,latitude,longitude){
         $.ajax({
             type: "get",
-            url: baseApiURL,
+            url: baseApiURL+"?limit="+window.localStorage.getItem("itemsPerRequest")+"&latitude="+latitude+"&longitude="+longitude+"&range="+window.localStorage.getItem("itemsInRange"),
             async: "true",
             complete: function (data) {
                 callback(self.parseJson(data.responseText));
             },
             error: function (xhr, status) {
-                console.log(status + " Message: " + xhr.statusText);
+                console.log("Error ophalen CloseSpots "+ status + " Message: " + xhr.statusText);
+            }
+        });
+    };
+
+    this.getMySpots = function (callback) {
+        var baseApiURL = "http://trainspot.herokuapp.com/api/spots";
+        $.ajax({
+            type: "get",
+            url: baseApiURL+"?owner="+window.localStorage.getItem("userId")+"&limit="+window.localStorage.getItem("itemsPerRequest"),
+            async: "true",
+            complete: function (data) {
+                callback(self.parseJson(data.responseText));
+            },
+            error: function (xhr, status) {
+                console.log("Error ophalen MySpots "+status + " Message: " + xhr.statusText);
             }
         });
     };
@@ -30,8 +46,8 @@ function SpotManager(){
             spot.longitude = jsonSpots[index].longitude;
             spot.latitude = jsonSpots[index].latitude;
             spot.image = new Image(jsonSpots[index].image.extension,jsonSpots[index].image.data);
-            spot.owner = null;
-
+            spot.owner = window.localStorage.getItem('userId');
+            spot.distance = jsonSpots[index].distance;
             spots.push(spot);
         });
         return spots
@@ -53,7 +69,6 @@ function SpotManager(){
                 console.log(status+" Message: "+xhr.statusText);
             }
         });
-        this.getAllSpots(function(spots){});
     };
 
     this.sortSpots = function(disCalc,spots){
