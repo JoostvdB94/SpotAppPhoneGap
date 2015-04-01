@@ -79,11 +79,15 @@ label.ui-btn {
 }
 .ui-btn {
 	text-decoration: none !important;
-    border-radius: 5px;
 }
 .ui-btn-active {
 	cursor: pointer;
 }
+
+div[data-role="header"] .ui-btn {
+    border:0px solid black;
+}
+
 /* Corner rounding
 -----------------------------------------------------------------------------------------------------------*/
 /* Class ui-btn-corner-all deprecated in 1.4 */

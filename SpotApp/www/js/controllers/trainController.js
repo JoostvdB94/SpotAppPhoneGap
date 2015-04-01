@@ -53,6 +53,7 @@ $(document).ready(function(){
     $('#myspots').on('pagecreate',function(e){trainController.showMySpots(function(){})});
     $('#photoPlaceholder').on('tap',function(e){trainController.getCamera()});
     $('#refreshLocations').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showClosestTrainStations(true,function(){$(e.target).removeClass('fa-spin');});});
+    $('#refreshMySpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showMySpots(function(){$(e.target).removeClass('fa-spin');})});
     $('#refreshSpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(function(){$(e.target).removeClass('fa-spin');});});
     $('form[name=spotForm]').on('submit',function(e){e.preventDefault();trainController.sendSpot(e.target);$('#photoPlaceholder').find('img').remove();e.target.reset();});
     $('#newLocationForm').on('submit',function(e){e.preventDefault();trainController.sendLocation($(e.target));});
