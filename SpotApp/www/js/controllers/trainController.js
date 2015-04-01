@@ -19,7 +19,7 @@ $( document ).on( "mobileinit", function() {
         e.preventDefault();
         window.localStorage.setItem("username", $(e.target).find('input[name=username]').first().val());
         $.ajax({
-            type: "post",
+            type: "POST",
             url: "http://trainspot.herokuapp.com/login",
             dataType:'json',
             contentType: "application/json",
@@ -28,7 +28,7 @@ $( document ).on( "mobileinit", function() {
                 $(e.target).find('[type=submit]').prop("disabled",true);
             },
             success: function (data) {
-                if(data.authenticated == "true") {
+                if(data.authenticated) {
                     window.localStorage.setItem("userId",data.user._id);
                     alert(window.localStorage.getItem("userId"));
                     $.mobile.pageContainer.pagecontainer('change', '#mainpage',
