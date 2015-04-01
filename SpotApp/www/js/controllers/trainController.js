@@ -94,7 +94,8 @@ $(document).ready(function(){
     $('#trainstations').on('pagecreate',function(e){trainController.showClosestTrainStations(false,function(s){})});
     $('#spots').on('pagecreate',function(e){trainController.showSpots(function(){})});
     $('#myspots').on('pagecreate',function(e){trainController.showMySpots(function(){})});
-    $('#photoPlaceholder').on('tap',function(e){trainController.getCamera()});
+    $('#photoPlaceholder').on('tap',function(e){trainController.getCamera($('#photoPlaceholder'))});
+    $('#photoEditPlaceholder').on('tap',function(e){trainController.getCamera($('#photoEditPlaceholder'))});
     $('#refreshLocations').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showClosestTrainStations(true,function(){$(e.target).removeClass('fa-spin');});});
     $('#refreshMySpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showMySpots(function(){$(e.target).removeClass('fa-spin');})});
     $('#refreshSpots').on('tap',function(e){$(e.target).addClass('fa-spin');trainController.showSpots(function(){$(e.target).removeClass('fa-spin');});});
@@ -138,12 +139,55 @@ $(document).ready(function(){
         }
     });
 });
+$('#logoutItem').on('tap',function(){
+    $.ajax({
+        type: "get",
+        url: "http://trainspot.herokuapp.nl/logout",
+        dataType:"json",
+        async: "true",
+        complete: function (data) {
+            alert("U bent nu uitgelogd");
+        },
+        error: function (xhr, status) {
+            console.log("Error ophalen MySpots "+status + " Message: " + xhr.statusText);
+        }
+    });
+});
+
+$('.editableSpot').bind('tap',function(e){
+    var id= $(e.target).attr('id');
+    var spotId = id.replace("MySpot_","");
+    $.ajax({
+        type: "get",
+        url: "http://trainspot.herokuapp.nl/api/spots/"+spotId,
+        dataType:"json",
+        async: "true",
+        complete: function (data) {
+            $('#spotEditForm').find('input[name=name]').val(data.name);
+            $('#spotEditForm').find('input[name=description]').val(data.description);
+            $.mobile.pageContainer.pagecontainer('change', '#spotEdit',
+                {
+                    changeHash: true,
+                    reverse: true,
+                    showLoadMsg: true
+                }
+            );
+        },
+        error: function (xhr, status) {
+            console.log("Error ophalen MySpots "+status + " Message: " + xhr.statusText);
+        }
+    });
+});
+
+$('#spotEditForm').on("submit",function(){
+
+});
 
 
 function TrainController(){
     var self = this;
     var geoObj = new Geolocation();
-
+    var placeholder;
     this.showClosestTrainStations = function(refreshCache, callback){
         var loadLocations = function(geoLocation){
             console.log("Getting stations..");
@@ -174,7 +218,7 @@ function TrainController(){
                     var loadMoreSpotsButton = $('#loadNextSpots');
                     spotListDom.find('li').not('#loadNextSpots').remove();
                     $.each(spots, function (index, val) {
-                        loadMoreSpotsButton.before('<li class="ui-li-has-thumb"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '<p class="grey">'+val.description+'</p></a><span class="ui-li-count">' + val.distance.toFixed(2) + ' KM</span></li>');
+                        loadMoreSpotsButton.before('<li class="ui-li-has-thumb"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#spots">' + val.name + '<p class="grey">'+val.description+'</p></a><span class="ui-li-count">' + val.distance.toFixed(2) + ' KM</span></li>');
                     });
                     $('#spotsCacheDate').text(moment().format('DD-MM-YY HH:mm'));
                     spotListDom.listview().listview('refresh');
@@ -195,7 +239,7 @@ function TrainController(){
                     var loadMoreMySpotsButton = $('#loadMyNextSpots');
                     mySpotListDom.find('li').not('#loadMyNextSpots').remove();
                     $.each(spots, function (index, val) {
-                        loadMoreMySpotsButton.before('<li class="ui-li-has-thumb" id="MySpot_'+val.id+'"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#trainstations">' + val.name + '<p class="grey">'+val.description+'</p></a><span class="ui-li-count">Edit</span></li>');
+                        loadMoreMySpotsButton.before('<li class="ui-li-has-thumb" id="MySpot_'+val.id+'"><div class="ui-li-thumb" style="text-align: center;z-index: 1;width:100%;height:100%"><img src="data:' + val.image.extension + ';base64,' + val.image.data + '" style="z-index:1;display: inline;width: 100%;"/></div><a href="#spotEdit" class="editableSpot">' + val.name + '<p class="grey">'+val.description+'</p></a><span class="ui-li-count">Edit</span></li>');
                     });
                     $('#mySpotsCacheDate').text(moment().format('DD-MM-YY HH:mm'));
                     mySpotListDom.listview().listview('refresh');
@@ -206,14 +250,14 @@ function TrainController(){
     };
 
     this.addPictureToScreen = function(base64){
-        var placeholder = $('#photoPlaceholder');
         placeholder.find('img').remove();
         placeholder.prepend('<img style="width: 100%; float:left;" src="data:image/jpeg;base64,'+base64+'"></img>');
         placeholder.find('input[name=image]').val(base64);
     };
 
-    this.getCamera = function(){
-        navigator.camera.getPicture(self.addPictureToScreen, function(){alert("Camera not available.")}, {allowEdit: true,quality: 50, destinationType : Camera.DestinationType.DATA_URL})
+    this.getCamera = function(imgPlaceholder){
+        placeholder = imgPlaceholder;
+        navigator.camera.getPicture(self.addPictureToScreen(), function(){alert("Camera not available.")}, {allowEdit: true,quality: 50, destinationType : Camera.DestinationType.DATA_URL})
     };
 
     this.sendSpot = function(form){
