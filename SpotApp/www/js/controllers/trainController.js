@@ -250,8 +250,8 @@ function TrainController(){
         placeholder.find('input[name=image]').val(base64);
     };
 
-    this.getCamera = function(imgPlaceholder){
-        navigator.camera.getPicture(self.addPictureToScreen(), function(){alert("Camera not available.")}, {allowEdit: true,quality: 50, destinationType : Camera.DestinationType.DATA_URL})
+    this.getCamera = function(){
+        navigator.camera.getPicture(self.addPictureToScreen, function(){alert("Camera not available.")}, {allowEdit: true,quality: 50, destinationType : Camera.DestinationType.DATA_URL})
     };
 
     this.sendSpot = function(form){
